@@ -81,7 +81,7 @@ put airbnb.json
 ```
 
 9. Google Cloud SDK Authentication
-in bash: under viktorija@de-project:~$
+in bash: under de-project:~$
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/airbnb.json
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
@@ -89,4 +89,12 @@ gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 output: Activated service account credentials for: [terraform-runner@airbnb-prices-project.iam.gserviceaccount.com]
 
 10. using terraform, create new bucket and dataset.  
+in folder DE-project/terraform/ create and configure files main.tf and varibles.tf.
 
+in bash: DE-project/terraform/
+```
+terraform init
+terraform plan
+terraform apply
+```
+in gcp will be created new bucket 'airbnb-prices-bucket' and new dataset 'airbnb_prices_dataset'. 
