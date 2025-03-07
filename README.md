@@ -68,16 +68,25 @@ roles:  BigQuery Admin
         Storage Admin
 add key in .json. 
 copy key into:
--  .gc/airbnb.json (on premises)
-- create folder .keys/airbnb.json (remote)
+-  .gc/airbnb.json (on premises for gcloud)
+- create folder .keys/airbnb.json (remote for another cases)
 
-
-5. Google Cloud SDK Authentication
-in bash:
+to copy key to server:
+in bash: in .gc/ folder:
 ```
-export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/ny-rides.json
+sftp de-project
+mkdir .gc/
+cd .gc
+put airbnb.json
 ```
 
+9. Google Cloud SDK Authentication
+in bash: under viktorija@de-project:~$
+```
+export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/airbnb.json
+gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
+```
+output: Activated service account credentials for: [terraform-runner@airbnb-prices-project.iam.gserviceaccount.com]
 
-6. using terraform, create new bucket and dataset.  
+10. using terraform, create new bucket and dataset.  
 
