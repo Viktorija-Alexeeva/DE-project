@@ -23,10 +23,12 @@ ssh -i ~/.ssh/proj viktorija@34.79.46.252
 ```
 
 4. in .ssh/config file add info about new ssh connection. 
+```
 Host de-project
     HostName 34.79.46.252
     User viktorija
     IdentityFile C:\Users\User\.ssh\proj 
+```
 
 5. clone git repo on remote VM: 
 
@@ -59,11 +61,13 @@ rm terraform_1.11.1_linux_amd64.zip
 in folder DE-project/terraform create and configure files main.tf and varibles.tf.
 
 9. create terraform-runner service account in gcp. 
+```
 name: terraform-runner
 roles:  BigQuery Admin
         Compute Admin
         Dataproc Administrator
         Storage Admin
+```
 add key in .json. 
 copy key into:
 - .gc/airbnb.json (on premises and for gcloud)
@@ -187,16 +191,17 @@ CTRL + X
 15. setup Dataproc cluster in gcp.
 enable Dataproc API. 
 create cluster:
+```
 name: de-project-cluster
 location: europe-west1
 zone: europe-west1-b
 cluster type: single node.
 optional components: jupyter notebook and docker. 
-
+```
 will be created: 
-    - cluster: 'de-project-cluster'
-    - VM 'de-project-cluster-m'
-    - 2 buckets: 'dataproc-temp' and 'dataproc-staging'
+- cluster: 'de-project-cluster'
+- VM 'de-project-cluster-m'
+- 2 buckets: 'dataproc-temp' and 'dataproc-staging'
 
 16. create script to rearrange csv files in gcs bucket.  
 in /code folder create upload_csv_to_gcs.py file.
