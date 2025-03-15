@@ -25,4 +25,10 @@ tasks:
     key: GCP_DATASET
     kvType: STRING
     value: airbnb_prices_dataset
+  
+  - id: kaggle_username
+    type: io.kestra.plugin.core.kv.Set
+    key: KAGGLE_USERNAME
+    kvType: STRING
+    value: viktorijaalexeeva  
     

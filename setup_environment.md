@@ -5,7 +5,7 @@ Steps to setup environment for project 'airbnb-prices'.
 2. create new project 'airbnb-prices' in GCP.
 enable Compute Engine API. 
 
-generate ssh key for VM.
+generate ssh key for VM. 
 in bash in /.ssh folder:
 ```
 ssh-keygen -t rsa -f proj -C viktorija -b 2048
@@ -37,7 +37,7 @@ in bash:
 $ git clone https://github.com/Viktorija-Alexeeva/DE-project.git
 ```
 
-6. download anaconda (link from google).
+6. install anaconda (link from google).
 
 in bash:
 ```
@@ -188,22 +188,27 @@ export PATH="${SPARK_HOME}/bin:${PATH}"
 CTRL + O
 CTRL + X
 
-15. setup Dataproc cluster in gcp.
-enable Dataproc API. 
-create cluster:
-```
-name: de-project-cluster
-location: europe-west1
-zone: europe-west1-b
-cluster type: single node.
-optional components: jupyter notebook and docker. 
-```
-will be created: 
-- cluster: 'de-project-cluster'
-- VM 'de-project-cluster-m'
-- 2 buckets: 'dataproc-temp' and 'dataproc-staging'
+15. create folder DE-project/dataset to upload data from kaggle. 
 
-16. create script to rearrange csv files in gcs bucket.  
-in /code folder create upload_csv_to_gcs.py file.
-It will divide files into 2 folders (under csv/): weekends and weekdays.
+16. configure connection to Kestra with docker-compose. 
+in DE-project/kestra create and configure :
+- docker-compose.yaml to configure Kestra and Postgres containers connection together in 1 file. 
+- gcp_kv.yaml to pass kv parameters to kestra.
 
+in bash in /kestra:
+```
+docker-compose up -d
+```
+then in google open http://localhost:8080 - will open Kestra UI. 
+
+Flows - create - copy code from gcp_kv.yaml - save - execute.
+after execution in Namespaces - de-project - kv store -  will appear 5 keys. 
+
+17. 
+
+
+18. create script to rearrange csv files in gcs bucket.  
+in DE-project/code folder create organize_files_in_gcs.py file.
+It will:
+- divide files into 2 folders (under csv/): weekends and weekdays.
+- add column 'city' according to file name. 

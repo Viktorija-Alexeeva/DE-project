@@ -27,8 +27,16 @@ terraform apply
 ```
 in gcp will be created new bucket 'airbnb-prices-bucket' and new dataset 'airbnb_prices_dataset'. 
 
+7. run Kestra (using docker-compose). 
+in bash in /kestra:
+```
+docker-compose up -d
+```
+it will run 2 containers (kestra-metadata and kestra) and 1 network. 
+in google go to localhost:8080 - will open Kestra UI. 
+
 4. download dataset 'airbnb prices' to VM. 
-create folder DE-project/dataset. Then download un unzip files. 
+download un unzip files. remove zip file from folder.
 
 in bash in DE-project/dataset:
 ```
@@ -38,12 +46,12 @@ rm airbnb-prices-in-european-cities.zip
 ```
 
 5. download csv files from VM to GCS raw folder.
-in bash:
+in bash 
 ```
-gsutil -m cp -r dataset/ gs://airbnb-prices-bucket/raw
+gsutil -m cp -r dataset/* gs://airbnb-prices-bucket/raw
 ```
 
-6. copy csv files from raw folder to weekends and weekdays folders using pyspark and Dataproc cluster.
+6.  rearrange csv files in gcs bucket (from raw/ into csv/ folder) + add column 'city' using pyspark and Dataproc cluster.
 
 To run PySpark:
 in bash in /code:
@@ -52,25 +60,17 @@ export PYTHONPATH="${SPARK_HOME}/python/:$PYTHONPATH"
 export PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.5-src.zip:$PYTHONPATH"
 ```
 
-Will be using code/upload_csv_to_gcs.py script. 
+Will be using code/organize_files_in_gcs.py script. 
 to copy script to gcs:
 in bash in /code:
 ```
-gsutil cp upload_csv_to_gcs.py gs://airbnb-prices-bucket/code/upload_csv_to_gcs.py
-```
-
-To submit jobs to Dataproc cluster:
-in bash in /code:
-```
-gcloud dataproc jobs submit pyspark \
-    --cluster=de-project-cluster \
-    --region=europe-west1 \
-    gs://airbnb-prices-bucket/code/upload_csv_to_gcs.py \
-    -- \
-        --source_directory=gs://airbnb-prices-bucket/raw/ \
-        --gcs_bucket=airbnb-prices-bucket
+gsutil cp organize_files_in_gcs.py gs://airbnb-prices-bucket/code/organize_files_in_gcs.py
 ```
 
 
 
 
+
+
+export KAGGLE_CONFIG_DIR=~/.kaggle
+export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/airbnb.json
