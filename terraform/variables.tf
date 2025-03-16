@@ -9,7 +9,7 @@
 
 variable "project" {
   description = "Project"
-  default     = "airbnb-prices-project"
+  default     = "airbnb-prices-eu"
 }
 
 variable "region" {
@@ -27,13 +27,13 @@ variable "location" {
 variable "bq_dataset_name" {
   description = "My BigQuery Dataset Name"
   #Update the below to what you want your dataset to be called
-  default     = "airbnb_prices_dataset"
+  default     = "airbnb_prices_eu_dataset"
 }
 
 variable "gcs_bucket_name" {
   description = "My Storage Bucket Name"
   #Update the below to a unique bucket name
-  default     = "airbnb-prices-bucket"
+  default     = "airbnb-prices-eu-bucket"
 }
 
 variable "gcs_storage_class" {
