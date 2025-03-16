@@ -12,7 +12,7 @@ ssh-keygen -t rsa -f proj-vm -C viktorija -b 2048
 cat proj-vm.pub
 ```
 
-in gcp Metadata - ssh keys - add ssh key. copy there public key (result of cat proj.pub)
+in gcp Metadata - ssh keys - add ssh key. copy there public key (result of cat proj-vm.pub)
 
 3. create VM instance 'de-project'.
 copy external IP, then connect to VM for the first time. 
@@ -35,6 +35,13 @@ Host de-project
 in bash: 
 ```
 $ git clone https://github.com/Viktorija-Alexeeva/DE-project.git
+```
+
+configure username and email in git: 
+in bash in DE-project/:
+```
+git config --local user.name "Your Name"
+git config --local user.email "your-email@example.com"
 ```
 
 6. install anaconda (link from google).
@@ -81,7 +88,6 @@ mkdir .gc/
 cd .gc
 put prices.json
 ```
-
 
 10. install docker.
 in bash:
