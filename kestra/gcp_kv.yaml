@@ -6,7 +6,7 @@ tasks:
     type: io.kestra.plugin.core.kv.Set
     key: GCP_PROJECT_ID
     kvType: STRING
-    value: airbnb-prices-project
+    value: airbnb-prices-eu
 
   - id: gcp_location
     type: io.kestra.plugin.core.kv.Set
@@ -18,17 +18,11 @@ tasks:
     type: io.kestra.plugin.core.kv.Set
     key: GCP_BUCKET_NAME
     kvType: STRING
-    value: airbnb-prices-bucket
+    value: airbnb-prices-eu-bucket
 
   - id: gcp_dataset
     type: io.kestra.plugin.core.kv.Set
     key: GCP_DATASET
     kvType: STRING
-    value: airbnb_prices_dataset
+    value: airbnb_prices_eu_dataset
   
-  - id: kaggle_username
-    type: io.kestra.plugin.core.kv.Set
-    key: KAGGLE_USERNAME
-    kvType: STRING
-    value: viktorijaalexeeva  
-    

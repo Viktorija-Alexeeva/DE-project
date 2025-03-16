@@ -12,10 +12,10 @@ will connect to de-project.
 2. Google Cloud SDK Authentication
 in bash: under viktorija@de-project:~$
 ```
-export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/airbnb.json
+export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/prices.json
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 ```
-output: Activated service account credentials for: [terraform-runner@airbnb-prices-project.iam.gserviceaccount.com]
+output: Activated service account credentials for: [terraform-runner@airbnb-prices-eu.iam.gserviceaccount.com]
 
 3. using terraform, create new bucket and dataset.  
 

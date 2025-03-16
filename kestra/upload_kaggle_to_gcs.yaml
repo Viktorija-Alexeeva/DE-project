@@ -1,0 +1,28 @@
+id: upload_kaggle_to_gcs
+namespace: de-project
+
+tasks:
+  
+  - id: download_kaggle_dataset
+    type: io.kestra.plugin.scripts.shell.Commands 
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    warningOnStdErr: false
+    outputFiles:
+      - "*.csv"
+    beforeCommands: 
+      - pip install kaggle
+    commands:
+      - kaggle datasets download thedevastator/airbnb-prices-in-european-cities
+      - unzip airbnb-prices-in-european-cities.zip
+
+  - id: for_each
+    type: io.kestra.plugin.core.flow.ForEach
+    values: "{{ outputs.download_kaggle_dataset.outputFiles | keys() }}"  
+    tasks:
+      - id: upload_to_gcs
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{ outputs.download_kaggle_dataset.outputFiles[taskrun.value] }}"
+        to: "gs://{{ kv('GCP_BUCKET_NAME') }}/raw/"
+        
+

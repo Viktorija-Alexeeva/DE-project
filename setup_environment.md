@@ -43,6 +43,11 @@ in bash in DE-project/:
 git config --local user.name "Your Name"
 git config --local user.email "your-email@example.com"
 ```
+change ownership of directory:
+in bash:
+```
+sudo chown -R viktorija:viktorija ~/DE-project
+```
 
 6. install anaconda (link from google).
 
@@ -209,7 +214,7 @@ docker-compose up -d
 then in google open http://localhost:8080 - will open Kestra UI. 
 
 Flows - create - copy code from gcp_kv.yaml - save - execute.
-after execution in Namespaces - de-project - kv store -  will appear 5 keys. 
+after execution in Namespaces - de-project - kv store -  will appear 4 keys. 
 
 17. 
 
