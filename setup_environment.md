@@ -2,14 +2,14 @@ Steps to setup environment for project 'airbnb-prices'.
 
 1. create repo 'DE-project' in github.
 
-2. create new project 'airbnb-prices' in GCP.
+2. create new project 'airbnb-prices-eu' in GCP.
 enable Compute Engine API. 
 
 generate ssh key for VM. 
 in bash in /.ssh folder:
 ```
-ssh-keygen -t rsa -f proj -C viktorija -b 2048
-cat proj.pub
+ssh-keygen -t rsa -f proj-vm -C viktorija -b 2048
+cat proj-vm.pub
 ```
 
 in gcp Metadata - ssh keys - add ssh key. copy there public key (result of cat proj.pub)
@@ -19,15 +19,15 @@ copy external IP, then connect to VM for the first time.
 
 in bash:
 ```
-ssh -i ~/.ssh/proj viktorija@34.79.46.252
+ssh -i ~/.ssh/proj-vm viktorija@34.38.125.214
 ```
 
 4. in .ssh/config file add info about new ssh connection. 
 ```
 Host de-project
-    HostName 34.79.46.252
+    HostName 34.38.125.214
     User viktorija
-    IdentityFile C:\Users\User\.ssh\proj 
+    IdentityFile C:\Users\User\.ssh\proj-vm
 ```
 
 5. clone git repo on remote VM: 
@@ -69,9 +69,9 @@ roles:  BigQuery Admin
         Storage Admin
 ```
 add key in .json. 
-copy key into:
-- .gc/airbnb.json (on premises and for gcloud)
-- create folder .keys/airbnb.json (remote for another cases)
+on premises copy key into:
+- .gc/prices.json (on premises and for gcloud)
+- create folder DE-project/.keys/prices.json (and copy to remote for another cases)
 
 to copy key to server:
 in bash: in /.gc folder:
@@ -79,8 +79,9 @@ in bash: in /.gc folder:
 sftp de-project
 mkdir .gc/
 cd .gc
-put airbnb.json
+put prices.json
 ```
+
 
 10. install docker.
 in bash:

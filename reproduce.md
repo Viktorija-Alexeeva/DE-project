@@ -5,7 +5,7 @@ copy external IP and paste it into config file.
 connect to VM via ssh. 
 in bash: 
 ```
-ssh -i ~/.ssh/proj viktorija@34.79.46.252
+ssh -i ~/.ssh/proj-vm viktorija@34.38.125.214
 ```
 will connect to de-project.
 
@@ -25,7 +25,7 @@ terraform init
 terraform plan
 terraform apply
 ```
-in gcp will be created new bucket 'airbnb-prices-bucket' and new dataset 'airbnb_prices_dataset'. 
+in gcp will be created new bucket 'airbnb-prices-eu-bucket' and new dataset 'airbnb_prices_eu_dataset'. 
 
 7. run Kestra (using docker-compose). 
 in bash in /kestra:
@@ -48,7 +48,7 @@ rm airbnb-prices-in-european-cities.zip
 5. download csv files from VM to GCS raw folder.
 in bash 
 ```
-gsutil -m cp -r dataset/* gs://airbnb-prices-bucket/raw
+gsutil -m cp -r dataset/* gs://airbnb-prices-eu-bucket/raw
 ```
 
 6.  rearrange csv files in gcs bucket (from raw/ into csv/ folder) + add column 'city' using pyspark and Dataproc cluster.
