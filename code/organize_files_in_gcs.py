@@ -1,65 +1,57 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import lit  # Import 'lit' to create literal columns
-from google.cloud import storage
 import argparse
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
+from google.cloud import storage
+import os
 
-def organize_files_in_gcs(raw_directory, gcs_bucket):
-    """
-    Organize CSV files from a raw folder in GCS to weekends and weekdays folders in GCS using PySpark.
-    Additionally, add a 'city' column to each CSV file based on the file name (city_weekends.csv or city_weekdays.csv).
-    """
-    # Initialize PySpark session
-    spark = SparkSession.builder.appName("OrganizeCSVFilesInGCS").getOrCreate()
-
-    # Initialize GCS client
+def list_files_in_gcs(bucket_name, folder):
+    """List all files in a specific GCS folder"""
     client = storage.Client()
-    bucket_name = raw_directory.split('/')[2]  # Extract bucket name from GCS path
-    prefix = '/'.join(raw_directory.split('/')[3:])  # Extract folder prefix from GCS path
-    bucket = client.bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix=prefix)
+    blobs = client.list_blobs(bucket_name, prefix=folder)
+    return [blob.name for blob in blobs]
 
-    # Process each CSV file in the raw folder
-    for blob in blobs:
-        filename = blob.name.split('/')[-1]  # Extract the file name
-        if not filename.endswith('.csv'):
-            continue  # Skip non-CSV files
+def organize_files(input_path, output_path, bucket_name):
+    # Initialize Spark session
+    spark = SparkSession.builder \
+        .master("spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077") \
+        .appName("OrganizeCSVFiles") \
+        .getOrCreate()
 
-        # Determine the destination path based on the file name and set folder accordingly
-        destination_folder = None
-        if filename.endswith('_weekends.csv'):
-            destination_folder = "csv/weekends"
-        elif filename.endswith('_weekdays.csv'):
-            destination_folder = "csv/weekdays"
-        else:
-            continue  # Skip irrelevant files if the naming doesn't match
+    # List all files in the folder specified by input_path (this is passed as 'folder')
+    files = list_files_in_gcs(bucket_name, input_path)  # input_path is passed to 'folder'
+    
+    for file in files:
+        if file.endswith(".csv"):
+            # Extract city and day type from the filename
+            base_filename = os.path.basename(file)  # Get just the file name (without path)
+            city, day_type = base_filename.split('_')[:2]  # Extract city and day type
+            day_type = day_type.split('.')[0]  # Remove '.csv' to get weekends/weekdays
 
-        destination_path = f"gs://{gcs_bucket}/{destination_folder}/{filename}"
+            # Read the CSV file from GCS
+            df = spark.read.option("header", "true").csv(f"{input_path}/{file}")
 
-        # Determine the city by splitting the file name (assumes file name in format: city_weekends.csv or city_weekdays.csv)
-        city = filename.split('_')[0]
+            # Add 'city' column to the DataFrame
+            df = df.withColumn("city", lit(city))
 
-        # Read CSV from GCS using Spark
-        gcs_file_path = f"gs://{bucket_name}/{blob.name}"
-        df = spark.read.option("header", "true").csv(gcs_file_path)
+            # Define the output folder (weekends or weekdays)
+            output_folder = f"{output_path}/{day_type}"
 
-        # Add the new 'city' column with the extracted city name
-        df = df.withColumn("city", lit(city))
-
-        # Write the CSV file to the appropriate GCS folder with the new column added
-        df.write.mode("overwrite").option("header", "true").csv(destination_path)
-
-        print(f"Moved {filename} to {destination_path} with city column added: {city}")
-
-    # Stop the Spark session
+            # Write the DataFrame back to GCS (overwrite mode to avoid appending)
+            df.write.option("header", "true").mode("overwrite").csv(f"{output_folder}/{city}_{day_type}")
+    
     spark.stop()
 
-if __name__ == '__main__':
-    # Set up argument parsing
-    parser = argparse.ArgumentParser(description="Organize CSV files in GCS using PySpark and add a 'city' column.")
-    parser.add_argument("--source_directory", type=str, required=True, help="GCS path to the raw dataset folder.")
-    parser.add_argument("--gcs_bucket", type=str, required=True, help="Target GCS bucket name.")
-
+def main():
+    # Argument parsing
+    parser = argparse.ArgumentParser(description="Process CSV files from GCS")
+    parser.add_argument("--input_path", required=True, help="Path to the raw folder in GCS")
+    parser.add_argument("--output_path", required=True, help="Path to the processed folder in GCS")
+    parser.add_argument("--bucket_name", required=True, help="Name of the GCS bucket")
+    
     args = parser.parse_args()
 
-    # Organize files in GCS
-    organize_files_in_gcs(args.source_directory, args.gcs_bucket)
+    # Call the process_files function, passing the arguments to process the files
+    organize_files(args.input_path, args.output_path, args.bucket_name)
+
+if __name__ == "__main__":
+    main()

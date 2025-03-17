@@ -94,6 +94,12 @@ cd .gc
 put prices.json
 ```
 
+add to .bashrc for default authentication:
+```
+export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/prices.json
+gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
+```
+
 10. install docker.
 in bash:
 ```
@@ -183,7 +189,64 @@ val distData = sc.parallelize(data)
 distData.filter(_ < 10).collect()
 ```
 
-add java and spark paths into .bashrc:
+to connect to GCS need to downlod jar:
+in bash in DE-project/code:
+```
+mkdir lib
+cd lib
+gsutil cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar gcs-connector-hadoop3-2.2.5.jar
+```
+
+15. create local spark cluster (master and workers).
+to change default port for spark master to 9090 (8080 will be for Kestra).
+in bash:
+```
+cd ~/spark/spark-3.5.5-bin-hadoop3
+nano conf/spark-defaults.conf
+```
+in file add:
+```
+spark.ui.port 9090
+```
+CTRL + X
+CTRL + Y 
+Enter
+
+in bash:
+```
+nano ~/spark/spark-3.5.5-bin-hadoop3/conf/spark-env.sh
+```
+in opened file:
+```
+export SPARK_MASTER_WEBUI_PORT=9090
+```
+
+In VS add forwarded port 9090.
+
+start spark master: 
+in bash in ~/spark/spark-3.5.5-bin-hadoop3:
+```
+./sbin/start-master.sh
+```
+in google open Spark UI on : http://localhost:9090/
+copy Spark URL: spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077
+
+create worker: 
+in bash in ~/spark/spark-3.5.5-bin-hadoop3:
+```
+URL="spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077"
+./sbin/start-worker.sh ${URL}
+```
+
+
+to stop master and workers:
+in bash in ~/spark/spark-3.5.5-bin-hadoop3:
+```
+./sbin/stop-worker.sh
+./sbin/stop-master.sh
+```
+
+16. add java and spark paths into .bashrc:
 in bash:
 ```
 nano .bashrc
@@ -200,12 +263,20 @@ export PATH="${SPARK_HOME}/bin:${PATH}"
 CTRL + O
 CTRL + X
 
-15. create folder DE-project/dataset to upload data from kaggle. 
+apply changes immediately:
+in bash:
+```
+source .bashrc
+```
 
-16. configure connection to Kestra with docker-compose. 
+17. create folder DE-project/dataset to upload data from kaggle. 
+
+18. configure connection to Kestra with docker-compose. 
 in DE-project/kestra create and configure :
 - docker-compose.yaml to configure Kestra and Postgres containers connection together in 1 file. 
 - gcp_kv.yaml to pass kv parameters to kestra.
+
+in VS add forwarded ports: 8080 and 8081.
 
 in bash in /kestra:
 ```
@@ -216,10 +287,9 @@ then in google open http://localhost:8080 - will open Kestra UI.
 Flows - create - copy code from gcp_kv.yaml - save - execute.
 after execution in Namespaces - de-project - kv store -  will appear 4 keys. 
 
-17. 
 
 
-18. create script to rearrange csv files in gcs bucket.  
+19. create script to rearrange csv files in gcs bucket.  
 in DE-project/code folder create organize_files_in_gcs.py file.
 It will:
 - divide files into 2 folders (under csv/): weekends and weekdays.

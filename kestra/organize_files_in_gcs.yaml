@@ -1,0 +1,22 @@
+id: organize_csv_in_gcs
+namespace: de-project
+
+tasks:
+  - id: submit_job
+    type: io.kestra.plugin.spark.SparkCLI
+    inputFiles:
+      /code/organize_files_in_gcs.py  
+    docker:
+      image: bitnami/spark
+      networkMode: host
+      volumes:
+        - ./path/to/your/code:/code  # Mount your local code directory to /code in the container
+    commands:
+      - spark-submit --name OrganizeCSVFiles \
+                     --master spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077 \
+                     --conf spark.executor.memory=4g \
+                     --conf spark.driver.memory=2g \
+                     /code/organize_files_in_gcs.py \
+                     --input_path gs://your-bucket-name/raw \
+                     --output_path gs://your-bucket-name/processed \
+                     --bucket_name your-bucket-name

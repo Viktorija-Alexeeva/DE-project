@@ -9,8 +9,8 @@ ssh -i ~/.ssh/proj-vm viktorija@34.38.125.214
 ```
 will connect to de-project.
 
-2. Google Cloud SDK Authentication
-in bash: under viktorija@de-project:~$
+2. Google Cloud SDK Authentication (if not configured automatically)
+in bash: under viktorija@de-project:~$ 
 ```
 export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/prices.json
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
@@ -57,7 +57,7 @@ To run PySpark:
 in bash in /code:
 ```
 export PYTHONPATH="${SPARK_HOME}/python/:$PYTHONPATH"
-export PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.5-src.zip:$PYTHONPATH"
+export PYTHONPATH="${SPARK_HOME}/python/lib/py4j-0.10.9.7-src.zip:$PYTHONPATH"
 ```
 
 Will be using code/organize_files_in_gcs.py script. 
@@ -71,6 +71,3 @@ gsutil cp organize_files_in_gcs.py gs://airbnb-prices-bucket/code/organize_files
 
 
 
-
-export KAGGLE_CONFIG_DIR=~/.kaggle
-export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/airbnb.json
