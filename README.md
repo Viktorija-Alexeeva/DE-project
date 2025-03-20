@@ -1,11 +1,12 @@
 # DE-project
 Final project has been created during Data Engineering Zoomcamp. 
 
-Project is based on 'Airbnb Prices in European Cities' dataset from Kaggle. 
-Source link: https://www.kaggle.com/datasets/thedevastator/airbnb-prices-in-european-cities
+Project is based on data from Inside Airbnb, which is a mission driven project that provides data and advocacy about Airbnb's impact on residential communities.
+It works towards a vision where communities are empowered with data and information to understand, decide and control the role of renting residential homes to tourists.
+Source link: https://insideairbnb.com/get-the-data. 
 
 About dataset:
-This dataset provides a comprehensive look at Airbnb prices in some of the most popular European cities. Each listing is evaluated for various attributes such as room types, cleanliness and satisfaction ratings, bedrooms, distance from the city centre, and more to capture an in-depth understanding of Airbnb prices on both weekdays and weekends.
+#TODO
 
 1. To configure environment for the project follow instructions from setup_environment.md file.
 

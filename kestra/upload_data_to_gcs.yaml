@@ -1,0 +1,87 @@
+id: upload_data_to_gcs
+namespace: de-project
+
+inputs:
+  - id: country
+    type: SELECT
+    displayName: Select country
+    values: [Spain, Portugal, Italy, Greece, The Netherlands, Belgium, Denmark, Germany, France]
+    defaults: Spain
+    allowCustomValue: true
+ 
+tasks:
+  - id: extract
+    type: io.kestra.plugin.scripts.python.Script
+    outputFiles:
+      - "*.csv"
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    warningOnStdErr: false
+    beforeCommands:
+      - pip install beautifulsoup4
+      - pip install wget
+    script: |
+      import os
+      import requests
+      from bs4 import BeautifulSoup
+      import wget
+
+      BASE_URL = "https://insideairbnb.com/get-the-data/"
+
+      # Fetch the webpage
+      response = requests.get(BASE_URL)
+      
+      # Parse the HTML
+      soup = BeautifulSoup(response.text, 'html.parser')
+
+      # Find all links on the page
+      all_links = soup.find_all("a")
+
+      # Filter only "visualisations/listings.csv" links for target countries
+      listings_links = [
+          link.get("href") for link in all_links
+          if link.get("href") and "visualisations/listings.csv" in link.get("href")
+          and "{{inputs.country}}".lower() in link.get("href").lower() 
+      ]
+      
+      download_dir = os.getcwd()
+      os.makedirs(download_dir, exist_ok=True) 
+
+      # Download each file
+      for link in listings_links:
+          filename_parts = link.split("/")
+          country = filename_parts[3]  # Extract country from URL
+          region = filename_parts[4]   # Extract region from URL
+          city = filename_parts[5]     # Extract city from URL
+          release_date = filename_parts[6]  # Extract release date
+
+          # Construct a formatted filename
+          file_name = f"{country}_{region}_{city}_{release_date}_listings.csv"
+          file_path = os.path.join(download_dir, file_name)
+          
+          try:
+            # Delete existing file before downloading to prevent duplicates
+            if os.path.exists(file_path):
+              os.remove(file_path)
+          # Download file
+            wget.download(link, file_path)
+            print(f"\nDownloaded: {file_name}")
+
+          except Exception as e:
+            print(f"Failed to download {file_name}: {e}")
+
+  - id: for_each
+    type: io.kestra.plugin.core.flow.ForEach
+    values: "{{ outputs.extract.outputFiles | keys }}"  
+    tasks:
+      - id: upload_to_gcs
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{ outputs.extract.outputFiles[taskrun.value] }}"
+        to: "gs://{{ kv('GCP_BUCKET_NAME') }}/raw/{{ taskrun.value }}"
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
