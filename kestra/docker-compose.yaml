@@ -35,10 +35,8 @@ services:
       - /home/viktorija/.gc/prices.json:/.gc/prices.json
       - /home/viktorija/DE-project/dataset:/dataset
       - /home/viktorija/DE-project/code:/code
-      - /home/viktorija/.kaggle/kaggle.json:/.kaggle/kaggle.json
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: '/.gc/prices.json'
-      KAGGLE_CONFIG_DIR: '/.kaggle'
       KESTRA_CONFIGURATION: |
         datasources:
           postgres:

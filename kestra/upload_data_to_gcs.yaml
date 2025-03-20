@@ -5,12 +5,12 @@ inputs:
   - id: country
     type: SELECT
     displayName: Select country
-    values: [Spain, Portugal, Italy, Greece, The Netherlands, Belgium, Denmark, Germany, France]
+    values: [Spain, Portugal, Italy, Greece, France, Germany]
     defaults: Spain
     allowCustomValue: true
  
 tasks:
-  - id: extract
+  - id: extract_and_add_columns
     type: io.kestra.plugin.scripts.python.Script
     outputFiles:
       - "*.csv"
@@ -20,11 +20,13 @@ tasks:
     beforeCommands:
       - pip install beautifulsoup4
       - pip install wget
+      - pip install pandas
     script: |
       import os
       import requests
       from bs4 import BeautifulSoup
       import wget
+      import pandas as pd
 
       BASE_URL = "https://insideairbnb.com/get-the-data/"
 
@@ -67,21 +69,26 @@ tasks:
             wget.download(link, file_path)
             print(f"\nDownloaded: {file_name}")
 
+            # Read CSV and add new columns
+            df = pd.read_csv(file_path)
+            df["country"] = country
+            df["region"] = region
+            df["city"] = city
+            df["release_date"] = release_date
+
+            # Save updated CSV
+            df.to_csv(file_path, index=False)
+            print(f"Updated file with additional columns: {file_name}")
+
           except Exception as e:
             print(f"Failed to download {file_name}: {e}")
 
   - id: for_each
     type: io.kestra.plugin.core.flow.ForEach
-    values: "{{ outputs.extract.outputFiles | keys }}"  
+    values: "{{ outputs.extract_and_add_columns.outputFiles | keys }}"  
     tasks:
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
-        from: "{{ outputs.extract.outputFiles[taskrun.value] }}"
+        from: "{{ outputs.extract_and_add_columns.outputFiles[taskrun.value] }}"
         to: "gs://{{ kv('GCP_BUCKET_NAME') }}/raw/{{ taskrun.value }}"
 
-pluginDefaults:
-  - type: io.kestra.plugin.gcp
-    values:
-      projectId: "{{kv('GCP_PROJECT_ID')}}"
-      location: "{{kv('GCP_LOCATION')}}"
-      bucket: "{{kv('GCP_BUCKET_NAME')}}"
