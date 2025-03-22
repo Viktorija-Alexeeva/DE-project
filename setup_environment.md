@@ -1,11 +1,13 @@
-Steps to setup environment for project 'airbnb-prices'.
+Steps to setup environment for project 'airbnb-prices-eu'.
 
 1. create repo 'DE-project' in github.
 
 2. create new project 'airbnb-prices-eu' in GCP.
+
 enable Compute Engine API. 
 
 generate ssh key for VM. 
+
 in bash in /.ssh folder:
 ```
 ssh-keygen -t rsa -f proj-vm -C viktorija -b 2048
@@ -38,6 +40,7 @@ $ git clone https://github.com/Viktorija-Alexeeva/DE-project.git
 ```
 
 configure username and email in git: 
+
 in bash in DE-project/:
 ```
 git config --local user.name "Your Name"
@@ -70,7 +73,7 @@ rm terraform_1.11.1_linux_amd64.zip
 ```
 
 8. configure terraform files. 
-in folder DE-project/terraform create and configure files main.tf and varibles.tf.
+in folder DE-project/terraform create and configure files main.tf and variables.tf.
 
 9. create terraform-runner service account in gcp. 
 ```
@@ -126,32 +129,7 @@ wget https://github.com/docker/compose/releases/download/v2.33.1/docker-compose-
 chmod +x docker-compose
 ```
 
-12. install Kaggle and authentificate. 
-
-in bash:
-```
-pip install kaggle
-```
-
-set up kaggle API key.
-in kaggle account - settings - create new token - will download kaggle.json file.
-save kaggle.json in ~/.kaggle/kaggle.json.
-
-to copy key to server:
-in bash: in /.kaggle folder:
-```
-sftp de-project
-mkdir .kaggle/
-cd .kaggle
-put kaggle.json
-```
-Set permissions:
-in bash: 
-```
-chmod 600 ~/.kaggle/kaggle.json
-```
-
-13. install java.
+12. install java.
 create ~/spark folder.
 download OpenJDK.
 in bash in /spark:
@@ -167,7 +145,7 @@ export JAVA_HOME="${HOME}/spark/jdk-11.0.2"
 export PATH="${JAVA_HOME}/bin:${PATH}"
 ```
 
-14. install spark.
+13. install spark.
 in bash in /spark:
 ```
 wget https://archive.apache.org/dist/spark/spark-3.5.5/spark-3.5.5-bin-hadoop3.tgz
@@ -197,56 +175,7 @@ cd lib
 gsutil cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar gcs-connector-hadoop3-2.2.5.jar
 ```
 
-15. create local spark cluster (master and workers).
-to change default port for spark master to 9090 (8080 will be for Kestra).
-in bash:
-```
-cd ~/spark/spark-3.5.5-bin-hadoop3
-nano conf/spark-defaults.conf
-```
-in file add:
-```
-spark.ui.port 9090
-```
-CTRL + X
-CTRL + Y 
-Enter
-
-in bash:
-```
-nano ~/spark/spark-3.5.5-bin-hadoop3/conf/spark-env.sh
-```
-in opened file:
-```
-export SPARK_MASTER_WEBUI_PORT=9090
-```
-
-In VS add forwarded port 9090.
-
-start spark master: 
-in bash in ~/spark/spark-3.5.5-bin-hadoop3:
-```
-./sbin/start-master.sh
-```
-in google open Spark UI on : http://localhost:9090/
-copy Spark URL: spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077
-
-create worker: 
-in bash in ~/spark/spark-3.5.5-bin-hadoop3:
-```
-URL="spark://de-project.europe-west1-b.c.airbnb-prices-eu.internal:7077"
-./sbin/start-worker.sh ${URL}
-```
-
-
-to stop master and workers:
-in bash in ~/spark/spark-3.5.5-bin-hadoop3:
-```
-./sbin/stop-worker.sh
-./sbin/stop-master.sh
-```
-
-16. add java and spark paths into .bashrc:
+14. add java and spark paths into .bashrc:
 in bash:
 ```
 nano .bashrc
@@ -269,11 +198,9 @@ in bash:
 source .bashrc
 ```
 
-17. create folder DE-project/dataset to upload data from kaggle. 
-
-18. configure connection to Kestra with docker-compose. 
+15. configure connection to Kestra with docker-compose. 
 in DE-project/kestra create and configure :
-- docker-compose.yaml to configure Kestra and Postgres containers connection together in 1 file. 
+- docker-compose.yaml to configure Kestra and Kestra-metadata containers connection together in 1 file. 
 - gcp_kv.yaml to pass kv parameters to kestra.
 
 in VS add forwarded ports: 8080 and 8081.
@@ -287,10 +214,12 @@ then in google open http://localhost:8080 - will open Kestra UI.
 Flows - create - copy code from gcp_kv.yaml - save - execute.
 after execution in Namespaces - de-project - kv store -  will appear 4 keys. 
 
-
-
-19. create script to rearrange csv files in gcs bucket.  
-in DE-project/code folder create organize_files_in_gcs.py file.
+16. create flow to upload csv files into gcs bucket.  
+in DE-project/kestra folder create upload_data_to_gcs.yaml file.
 It will:
-- divide files into 2 folders (under csv/): weekends and weekdays.
-- add column 'city' according to file name. 
+- download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/"
+- rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv
+- add 4 additional columns: country, region, city, release_date
+- upload updated csv files into gcs bucket into {country} folder
+
+ 

@@ -33,7 +33,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
       - /home/viktorija/.gc/prices.json:/.gc/prices.json
-      - /home/viktorija/DE-project/dataset:/dataset
       - /home/viktorija/DE-project/code:/code
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: '/.gc/prices.json'
