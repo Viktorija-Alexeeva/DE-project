@@ -5,8 +5,8 @@ inputs:
   - id: country
     type: SELECT
     displayName: Select country
-    values: [Spain, Portugal, Italy, Greece, France, Germany]
-    defaults: Spain
+    values: [spain, portugal, italy, greece, france, germany]
+    defaults: spain
     allowCustomValue: true
  
 tasks:
@@ -21,12 +21,15 @@ tasks:
       - pip install beautifulsoup4
       - pip install wget
       - pip install pandas
+      - pip install unidecode
     script: |
       import os
       import requests
       from bs4 import BeautifulSoup
       import wget
       import pandas as pd
+      import unidecode
+      import re
 
       BASE_URL = "https://insideairbnb.com/get-the-data/"
 
@@ -65,12 +68,47 @@ tasks:
             # Delete existing file before downloading to prevent duplicates
             if os.path.exists(file_path):
               os.remove(file_path)
-          # Download file
+            # Download file
             wget.download(link, file_path)
             print(f"\nDownloaded: {file_name}")
 
-            # Read CSV and add new columns
+            # Function to clean special characters, fix encoding, and handle newlines/tabs/extra quotes
+            def clean_text(text):
+                if text:
+                    # Remove extra newlines and tabs
+                    text = re.sub(r'[\n\t]', ' ', text)
+                    
+                    # Remove leading/trailing quotes or extra commas
+                    text = re.sub(r'^[\'",\s]+|[\'",\s]+$', '', text)
+                    
+                    # Normalize encoding issues using unidecode
+                    text = unidecode.unidecode(text)
+                    
+                    # Replace multiple spaces with a single space
+                    text = re.sub(r'\s+', ' ', text)
+                
+                return text
+
+            # Load the CSV file into a pandas DataFrame            
             df = pd.read_csv(file_path)
+
+            # List of all columns to clean
+            columns_to_clean = [
+                'id', 'name', 'host_id', 'host_name', 'neighbourhood_group', 'neighbourhood', 
+                'latitude', 'longitude', 'room_type', 'price', 'minimum_nights', 'number_of_reviews', 
+                'last_review', 'reviews_per_month', 'calculated_host_listings_count', 'availability_365', 
+                'number_of_reviews_ltm', 'license'
+            ]
+
+            # Apply the cleaning function to all relevant columns
+            for col_name in columns_to_clean:
+                if col_name in df.columns:  # Make sure the column exists in the DataFrame
+                    df[col_name] = df[col_name].apply(lambda x: clean_text(str(x)) if pd.notnull(x) else x)
+
+            # Filter rows that have exactly the expected number of columns
+            df = df[df.columns[:len(columns_to_clean)].notnull().all(axis=1)]            
+
+            # Add new columns
             df["country"] = country
             df["region"] = region
             df["city"] = city

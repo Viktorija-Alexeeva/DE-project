@@ -6,7 +6,7 @@ Steps to setup environment for project 'airbnb-prices-eu'.
 
 enable Compute Engine API. 
 
-generate ssh key for VM. 
+generate ssh key for VM:
 
 in bash in /.ssh folder:
 ```
@@ -17,6 +17,7 @@ cat proj-vm.pub
 in gcp Metadata - ssh keys - add ssh key. copy there public key (result of cat proj-vm.pub)
 
 3. create VM instance 'de-project'.
+
 copy external IP, then connect to VM for the first time. 
 
 in bash:
@@ -32,7 +33,7 @@ Host de-project
     IdentityFile C:\Users\User\.ssh\proj-vm
 ```
 
-5. clone git repo on remote VM: 
+5. clone git repo on remote VM. 
 
 in bash: 
 ```
@@ -47,6 +48,7 @@ git config --local user.name "Your Name"
 git config --local user.email "your-email@example.com"
 ```
 change ownership of directory:
+
 in bash:
 ```
 sudo chown -R viktorija:viktorija ~/DE-project
@@ -60,8 +62,7 @@ wget https://repo.anaconda.com/archive/Anaconda3-2024.10-1-Linux-x86_64.sh
 bash Anaconda3-2024.10-1-Linux-x86_64.sh
 ```
 
-7. install terraform.
-copy link in google for Amd64. 
+7. install terraform (link from google).
 
 in bash: in /bin:
 ```
@@ -73,6 +74,7 @@ rm terraform_1.11.1_linux_amd64.zip
 ```
 
 8. configure terraform files. 
+
 in folder DE-project/terraform create and configure files main.tf and variables.tf.
 
 9. create terraform-runner service account in gcp. 
@@ -84,11 +86,11 @@ roles:  BigQuery Admin
         Storage Admin
 ```
 add key in .json. 
-on premises copy key into:
-- .gc/prices.json (on premises and for gcloud)
-- create folder DE-project/.keys/prices.json (and copy to remote for another cases)
 
-to copy key to server:
+On premises copy key into /.gc/prices.json.
+
+Copy key to server:
+
 in bash: in /.gc folder:
 ```
 sftp de-project
@@ -103,7 +105,12 @@ export GOOGLE_APPLICATION_CREDENTIALS=~/.gc/prices.json
 gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
+In VS code (on remote) create folder DE-project/.keys/ and copy there prices.json.
+
+In result we will have 2 folders on remote, where key is stored. It could be useful for different access cases.
+
 10. install docker.
+
 in bash:
 ```
 sudo apt-get update
@@ -120,8 +127,9 @@ docker run hello-world
 ```
 
 11. install docker-compose. 
+
 in google: https://github.com/docker/compose/releases/tag/v2.33.1.
-copy link of 'docker-compose-linux-x86-64'
+copy link of 'docker-compose-linux-x86-64'.
 
 in bash in bin/:
 ```
@@ -130,8 +138,11 @@ chmod +x docker-compose
 ```
 
 12. install java.
+
 create ~/spark folder.
-download OpenJDK.
+
+download OpenJDK:
+
 in bash in /spark:
 ```
 wget https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz
@@ -139,6 +150,7 @@ tar xzfv openjdk-11.0.2_linux-x64_bin.tar.gz
 rm openjdk-11.0.2_linux-x64_bin.tar.gz
 ```
 define JAVA_HOME and add it to PATH:
+
 in bash in /spark:
 ```
 export JAVA_HOME="${HOME}/spark/jdk-11.0.2"
@@ -146,6 +158,7 @@ export PATH="${JAVA_HOME}/bin:${PATH}"
 ```
 
 13. install spark.
+
 in bash in /spark:
 ```
 wget https://archive.apache.org/dist/spark/spark-3.5.5/spark-3.5.5-bin-hadoop3.tgz
@@ -153,12 +166,14 @@ tar xzfv spark-3.5.5-bin-hadoop3.tgz
 rm spark-3.5.5-bin-hadoop3.tgz
 ```
 Add it to PATH:
+
 in bash in /spark:
 ```
 export SPARK_HOME="${HOME}/spark/spark-3.5.5-bin-hadoop3"
 export PATH="${SPARK_HOME}/bin:${PATH}"
 ```
 check that spark works:
+
 in bash in /spark:
 ```
 spark-shell
@@ -167,15 +182,9 @@ val distData = sc.parallelize(data)
 distData.filter(_ < 10).collect()
 ```
 
-to connect to GCS need to downlod jar:
-in bash in DE-project/code:
-```
-mkdir lib
-cd lib
-gsutil cp gs://hadoop-lib/gcs/gcs-connector-hadoop3-2.2.5.jar gcs-connector-hadoop3-2.2.5.jar
-```
 
-14. add java and spark paths into .bashrc:
+14. add java and spark paths to .bashrc.
+
 in bash:
 ```
 nano .bashrc
@@ -193,12 +202,41 @@ CTRL + O
 CTRL + X
 
 apply changes immediately:
+
 in bash:
 ```
 source .bashrc
 ```
 
-15. configure connection to Kestra with docker-compose. 
+15. create Dataproc cluster in gcp.
+
+enable Dataproc API. 
+
+create cluster using google cloud SDK:
+
+in bash:
+```
+gcloud dataproc clusters create de-project-cluster \
+--region=europe-west1 \
+--single-node \
+--master-machine-type=n1-standard-2 \
+--master-boot-disk-size=30GB \
+--image-version=2.0-debian10 \
+--project=airbnb-prices-eu 
+```
+
+will be created: 
+- cluster: 'de-project-cluster'
+- VM: 'de-project-cluster-m'
+- 2 buckets: 'dataproc-temp' and 'dataproc-staging'
+
+verify cluster status: in bash:
+```
+gcloud dataproc clusters describe de-project-cluster --region=europe-west1
+```
+
+16. configure connection to Kestra with docker-compose. 
+
 in DE-project/kestra create and configure :
 - docker-compose.yaml to configure Kestra and Kestra-metadata containers connection together in 1 file. 
 - gcp_kv.yaml to pass kv parameters to kestra.
@@ -212,14 +250,33 @@ docker-compose up -d
 then in google open http://localhost:8080 - will open Kestra UI. 
 
 Flows - create - copy code from gcp_kv.yaml - save - execute.
-after execution in Namespaces - de-project - kv store -  will appear 4 keys. 
+After execution in Namespaces - de-project - kv store -  will appear 4 keys. 
 
-16. create flow to upload csv files into gcs bucket.  
+17. create flow to upload csv files into gcs bucket. 
+
 in DE-project/kestra folder create upload_data_to_gcs.yaml file.
 It will:
-- download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/"
-- rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv
-- add 4 additional columns: country, region, city, release_date
-- upload updated csv files into gcs bucket into {country} folder
+- download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/".
+- rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv.
+- clean data: remove extra tabs, spaces, quotes. set encoding. 
+- filter rows with only expected number of columns.
+- add 4 additional columns: country, region, city, release_date.
+- upload updated csv files into gcs bucket into {country} folder.
 
- 
+18. create script to upload data from gcs into bigquery tables.
+
+in DE-project/code create script spark_bq_temp.py (for submitting pyspark job).
+it will:
+- identify schema for table
+- generate unique_row_id column
+- put data into bq table. 
+
+
+in DE-project/kestra create submit_job.yaml file. 
+it will:
+- copy spark_bq_temp.py to gcs bucket
+- submit pyspark job
+
+
+
+
