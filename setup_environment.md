@@ -252,15 +252,41 @@ then in google open http://localhost:8080 - will open Kestra UI.
 Flows - create - copy code from gcp_kv.yaml - save - execute.
 After execution in Namespaces - de-project - kv store -  will appear 4 keys. 
 
-17. create flow to upload csv files into gcs bucket. 
+17. create flow to upload csv files into gcs bucket and bq table. 
 
-in DE-project/kestra folder create upload_data_to_gcs.yaml file.
-It will:
-- download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/".
-- rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv.
-- clean data: remove extra tabs, spaces, quotes. set encoding. 
-- filter rows with only expected number of columns.
-- add 4 additional columns: country, region, city, release_date.
+in DE-project/kestra folder create upload_data_to_gcs_and_bq.yaml file.
+
+For the project are selected 6 countries: Spain, Portugal, Italy, Greece, France, Germany. 
+But there is possibility to choose any other country when user run script manually.  
+
+Script will have several tasks:
+- id: extract_and_add_columns:
+    this task will:
+        - download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/".
+        - rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv.
+        - clean data: remove extra tabs, spaces, quotes. set encoding.
+        - filter rows with only expected number of columns.
+        - add 4 additional columns: country, region, city, release_date.
+        - save updated files.
+
+- id: create_bq_table: will create {country}_listings table (target table, where will be stored all data) in BigQuery. 
+- id: upload_to_gcs: will save updated csv files into gcs bucket in appropriate {country} folder.
+- id: create_bq_table_ext: will create external table {country}_listings_ext from csv file.
+- id: create_bq_table_temp: will create materialized table {country}_listings_temp from {country}_listings_ext table and generate unique_row_id.
+- id: merge_bq_table: will insert new rows from {country}_listings_temp table into {country}_listings table. 
+- id: drop_bq_tables_ext_temp: will drop _ext and _temp tables after execution. 
+
+Also there are triggers for each country, which will run the flow automatically once a month, and, in case new csv file is pubished on site, it will be uploaded to gcs bucket and data will be added into appropriate bq table. 
+
+
+
+
+
+
+
+ 
+
+
 - upload updated csv files into gcs bucket into {country} folder.
 
 18. create script to upload data from gcs into bigquery tables.

@@ -1,0 +1,289 @@
+id: upload_data_to_gcs_and_bq
+namespace: de-project
+
+inputs:
+  - id: country
+    type: SELECT
+    displayName: Select country
+    values: [spain, portugal, italy, greece, france, germany]
+    defaults: spain
+    allowCustomValue: true
+ 
+tasks:
+  - id: extract_and_add_columns
+    type: io.kestra.plugin.scripts.python.Script
+    outputFiles:
+      - "*.csv"
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    warningOnStdErr: false
+    beforeCommands:
+      - pip install beautifulsoup4
+      - pip install wget
+      - pip install pandas
+      - pip install unidecode
+    script: |
+      import os
+      import requests
+      from bs4 import BeautifulSoup
+      import wget
+      import pandas as pd
+      import unidecode
+      import re
+
+      BASE_URL = "https://insideairbnb.com/get-the-data/"
+
+      # Fetch the webpage
+      response = requests.get(BASE_URL)
+      
+      # Parse the HTML
+      soup = BeautifulSoup(response.text, 'html.parser')
+
+      # Find all links on the page
+      all_links = soup.find_all("a")
+
+      # Filter only "visualisations/listings.csv" links for target countries
+      listings_links = [
+          link.get("href") for link in all_links
+          if link.get("href") and "visualisations/listings.csv" in link.get("href")
+          and "{{inputs.country}}".lower() in link.get("href").lower() 
+      ]
+      
+      download_dir = os.getcwd()
+      os.makedirs(download_dir, exist_ok=True) 
+
+      # Download each file
+      for link in listings_links:
+          filename_parts = link.split("/")
+          country = filename_parts[3]  # Extract country from URL
+          region = filename_parts[4]   # Extract region from URL
+          city = filename_parts[5]     # Extract city from URL
+          release_date = filename_parts[6]  # Extract release date
+
+          # Construct a formatted filename
+          file_name = f"{country}_{region}_{city}_{release_date}_listings.csv"
+          file_path = os.path.join(download_dir, file_name)
+          
+          try:
+            # Delete existing file before downloading to prevent duplicates
+            if os.path.exists(file_path):
+              os.remove(file_path)
+            # Download file
+            wget.download(link, file_path)
+            print(f"\nDownloaded: {file_name}")
+
+            # Function to clean special characters, fix encoding, and handle newlines/tabs/extra quotes
+            def clean_text(text):
+                if text:
+                    # Remove extra newlines and tabs
+                    text = re.sub(r'[\n\t]', ' ', text)
+                    
+                    # Remove leading/trailing quotes or extra commas
+                    text = re.sub(r'^[\'",\s]+|[\'",\s]+$', '', text)
+                    
+                    # Normalize encoding issues using unidecode
+                    text = unidecode.unidecode(text)
+                    
+                    # Replace multiple spaces with a single space
+                    text = re.sub(r'\s+', ' ', text)
+                
+                return text
+
+            # Load the CSV file into a pandas DataFrame
+            df = pd.read_csv(file_path, low_memory=False, encoding='utf-8', on_bad_lines='skip')
+
+            # List of all columns to clean
+            columns_to_clean = [
+                'id', 'name', 'host_id', 'host_name', 'neighbourhood_group', 'neighbourhood', 
+                'latitude', 'longitude', 'room_type', 'price', 'minimum_nights', 'number_of_reviews', 
+                'last_review', 'reviews_per_month', 'calculated_host_listings_count', 'availability_365', 
+                'number_of_reviews_ltm', 'license'
+            ]
+
+            # Apply the cleaning function to all relevant columns
+            for col_name in columns_to_clean:
+                if col_name in df.columns:  # Make sure the column exists in the DataFrame
+                    df[col_name] = df[col_name].apply(lambda x: clean_text(str(x)) if pd.notnull(x) else x)
+
+            # Check if DataFrame has expected columns
+            if len(df.columns) == len(columns_to_clean):
+                df = df[df.apply(lambda row: len(row) == len(columns_to_clean), axis=1)]
+            else:
+                print("Column mismatch detected, skipping filtering step.")                  
+
+            # Add new columns
+            df["country"] = country
+            df["region"] = region
+            df["city"] = city
+            df["release_date"] = release_date
+
+            # Save updated CSV
+            df.to_csv(file_path, index=False)
+            print(f"Updated file with additional columns: {file_name}")
+
+          except Exception as e:
+            print(f"Failed to download {file_name}: {e}")
+
+  - id: create_bq_table
+    type: io.kestra.plugin.gcp.bigquery.Query
+    sql: |
+        CREATE TABLE IF NOT EXISTS `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings` (
+          id INT,
+          name STRING,
+          host_id INT,
+          host_name STRING,
+          neighbourhood_group STRING,
+          neighbourhood STRING,
+          latitude STRING,
+          longitude STRING,
+          room_type STRING,
+          price FLOAT64,
+          minimum_nights INT,
+          number_of_reviews INT,
+          last_review DATE,
+          reviews_per_month FLOAT64,
+          calculated_host_listings_count INT,
+          availability_365 INT,
+          number_of_reviews_ltm INT,
+          license STRING,
+          country STRING,
+          region STRING,
+          city STRING,
+          release_date DATE,
+          unique_row_id BYTES 
+        )
+        PARTITION BY release_date
+        CLUSTER BY city
+        ;
+
+  - id: for_each
+    type: io.kestra.plugin.core.flow.ForEach
+    values: "{{ outputs.extract_and_add_columns.outputFiles | keys }}"  
+    concurrencyLimit : 1
+    tasks:
+      - id: upload_to_gcs
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{ outputs.extract_and_add_columns.outputFiles[taskrun.value] }}"
+        to: "gs://{{ kv('GCP_BUCKET_NAME') }}/{{inputs.country}}/{{ taskrun.value }}"
+
+      - id: create_bq_table_ext
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: |
+          CREATE OR REPLACE EXTERNAL TABLE `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_ext` (
+            id INT,
+            name STRING,
+            host_id INT,
+            host_name STRING,
+            neighbourhood_group STRING,
+            neighbourhood STRING,
+            latitude STRING,
+            longitude STRING,
+            room_type STRING,
+            price FLOAT64,
+            minimum_nights INT,
+            number_of_reviews INT,
+            last_review DATE,
+            reviews_per_month FLOAT64,
+            calculated_host_listings_count INT,
+            availability_365 INT,
+            number_of_reviews_ltm INT,
+            license STRING,
+            country STRING,
+            region STRING,
+            city STRING,
+            release_date DATE
+          )
+          OPTIONS (
+              format = 'CSV',
+              uris = [ 'gs://{{ kv('GCP_BUCKET_NAME') }}/{{inputs.country}}/{{ taskrun.value }}' ],
+              skip_leading_rows = 1,
+              ignore_unknown_values = TRUE
+          );
+
+      - id: create_bq_table_temp
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: |
+          CREATE OR REPLACE TABLE `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_temp`
+          AS
+          SELECT *,
+            MD5(CONCAT(
+              COALESCE(country, ""),
+              COALESCE(region, ""),
+              COALESCE(city, ""),
+              COALESCE(CAST(release_date AS STRING), ""),
+              COALESCE(CAST(id AS STRING), ""),
+              COALESCE(CAST(host_id AS STRING), "")
+            )) AS unique_row_id
+          FROM `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_ext`;
+
+      - id: merge_bq_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: |
+          MERGE INTO `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings` T
+          USING `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_temp` S
+          ON T.unique_row_id = S.unique_row_id
+          WHEN NOT MATCHED THEN
+            INSERT (id, name, host_id, host_name, neighbourhood_group, neighbourhood, latitude, longitude, room_type, price, minimum_nights, 
+                    number_of_reviews, last_review, reviews_per_month, calculated_host_listings_count, availability_365, number_of_reviews_ltm, 
+                    license, country, region, city, release_date, unique_row_id)
+            VALUES (S.id, S.name, S.host_id, S.host_name, S.neighbourhood_group, S.neighbourhood, S.latitude, S.longitude, S.room_type, S.price, S.minimum_nights, 
+                    S.number_of_reviews, S.last_review, S.reviews_per_month, S.calculated_host_listings_count, S.availability_365, S.number_of_reviews_ltm, 
+                    S.license, S.country, S.region, S.city, S.release_date, S.unique_row_id) ;
+
+  - id: drop_bq_tables_ext_temp
+    type: io.kestra.plugin.gcp.bigquery.Query
+    sql: |
+      DROP TABLE IF EXISTS `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_ext` ;
+      DROP TABLE IF EXISTS `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.country}}_listings_temp` ;
+
+      
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: To avoid cluttering your storage, we will remove the downloaded files
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
+      dataset: "{{kv('GCP_DATASET')}}"
+
+
+
+triggers:
+  - id: spain_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 6 1 * *"
+    inputs:
+      country: spain
+
+  - id: portugal_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 7 1 * *"
+    inputs:
+      country: portugal
+
+  - id: italy_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 8 1 * *"
+    inputs:
+      country: italy
+
+  - id: greece_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 1 * *"
+    inputs:
+      country: greece
+
+  - id: france_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 10 1 * *"
+    inputs:
+      country: france
+
+  - id: germany_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 11 1 * *"
+    inputs:
+      country: germany
