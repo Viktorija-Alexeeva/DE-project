@@ -241,7 +241,7 @@ in DE-project/kestra create and configure :
 - docker-compose.yaml to configure Kestra and Kestra-metadata containers connection together in 1 file. 
 - gcp_kv.yaml to pass kv parameters to kestra.
 
-in VS add forwarded ports: 8080 and 8081.
+in VS add forwarded ports: 5432, 8080 and 8081.
 
 in bash in /kestra:
 ```
@@ -256,53 +256,62 @@ After execution in Namespaces - de-project - kv store -  will appear 4 keys.
 
 in DE-project/kestra folder create upload_data_to_gcs_and_bq.yaml file.
 
-For the project are selected 6 countries: Spain, Portugal, Italy, Greece, France, Germany. 
+6 countries are selected for the project: Spain, Portugal, Italy, Greece, France, Germany. 
 But there is possibility to choose any other country when user run script manually.  
 
-Script will have several tasks:
+Flow will have several tasks:
 - id: extract_and_add_columns:
     this task will:
-        - download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/".
-        - rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv.
-        - clean data: remove extra tabs, spaces, quotes. set encoding.
-        - filter rows with only expected number of columns.
-        - add 4 additional columns: country, region, city, release_date.
-        - save updated files.
+    - download 'visualisations/listings.csv' files from "https://insideairbnb.com/get-the-data/".
+    - rename csv files as: {country}_{region}_{city}_{release_date}_listings.csv.
+    - clean data: remove extra tabs, spaces, quotes. set encoding.
+    - filter rows with only expected number of columns.
+    - add 4 additional columns: country, region, city, release_date.
+    - save modified files.
 
-- id: create_bq_table: will create {country}_listings table (target table, where will be stored all data) in BigQuery. 
-- id: upload_to_gcs: will save updated csv files into gcs bucket in appropriate {country} folder.
+- id: create_bq_table: will create {country}_listings table (target table, where will be stored all data) in BigQuery. Table is partitioned by release_date and clustered by city.
+- id: upload_to_gcs: will save modified csv files into gcs bucket in appropriate {country} folder.
 - id: create_bq_table_ext: will create external table {country}_listings_ext from csv file.
 - id: create_bq_table_temp: will create materialized table {country}_listings_temp from {country}_listings_ext table and generate unique_row_id.
 - id: merge_bq_table: will insert new rows from {country}_listings_temp table into {country}_listings table. 
 - id: drop_bq_tables_ext_temp: will drop _ext and _temp tables after execution. 
 
-Also there are triggers for each country, which will run the flow automatically once a month, and, in case new csv file is pubished on site, it will be uploaded to gcs bucket and data will be added into appropriate bq table. 
+The result of flow execution:
+- gcs bucket with 6 {country} folders and several csv files in each of them. 
+- dataset in bq with 6 {country}_listings tables and uploaded data. 
 
+Also there are triggers for each country, according to which the flow will run automatically once a month, and, in case new csv file is pubished on site, it will be uploaded to gcs bucket and data will be added into appropriate bq table. 
 
+18. create DBT project.
 
+will be used existing terraform-runner gcp service account. 
 
+create dbt cloud account 'dbt-project'. After logged in create dbt project.
 
+in DE-project create folder dbt-airbnb, where dbt project will be stored. 
 
+setup database connection:
+```
+connection name: BigQuery
+upload json key 
+```
 
- 
+setup project details:
+```
+project name: airbnb-prices-eu
+Project subdirectory: dbt-airbnb
+connection: BigQuery
+development credentials: 
+    dataset: airbnb_prices_eu_dataset
+setup repository (Git clone - copy SSH in repo): git@github.com:Viktorija-Alexeeva/DE-project.git
+```
 
+Link to github account. 
+Configure integration in github: github - personal account - settings - applications - dbt cloud - repository access - add repo 'DE-project' - save.  
 
-- upload updated csv files into gcs bucket into {country} folder.
-
-18. create script to upload data from gcs into bigquery tables.
-
-in DE-project/code create script spark_bq_temp.py (for submitting pyspark job).
-it will:
-- identify schema for table
-- generate unique_row_id column
-- put data into bq table. 
-
-
-in DE-project/kestra create submit_job.yaml file. 
-it will:
-- copy spark_bq_temp.py to gcs bucket
-- submit pyspark job
-
+initialize dbt-project: Development- Cloud IDE - click 'initialize-dbt-project' - will be created prject inside dbt-airbnb folder. 
+create new branch for commits: 'de-branch'
+commit - create pull request - merge. 
 
 
 
