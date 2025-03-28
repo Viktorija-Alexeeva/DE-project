@@ -1,0 +1,609 @@
+version: 2
+
+sources:
+  - name: staging
+    database: airbnb-prices-eu
+    schema: airbnb_prices_eu_dataset
+
+    tables:
+      - name: france_listings
+      - name: germany_listings
+      - name: greece_listings
+      - name: italy_listings
+      - name: portugal_listings
+      - name: spain_listings
+
+models:
+  - name: stg_spain_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: stg_portugal_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: stg_italy_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: stg_greece_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: stg_france_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: stg_germany_listings
+    description: ""
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude
+        data_type: string
+        description: ""
+
+      - name: longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
