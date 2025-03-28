@@ -26,7 +26,7 @@ renamed as (
         EXTRACT(YEAR FROM release_date) AS release_year,
         EXTRACT(MONTH FROM release_date) AS release_month,
         release_date,
-        id as listing_id,
+        COALESCE(id, CAST( {{ dbt_utils.generate_surrogate_key(['city', 'neighbourhood','latitude', 'longitude']) }} as INT64)) as listing_id,
         name as listing_name,
         host_id,
         host_name,

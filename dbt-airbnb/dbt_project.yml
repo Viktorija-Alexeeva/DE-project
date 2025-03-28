@@ -43,3 +43,5 @@ models:
     core:
       +materialized: table
 
+vars:
+  room_type_values: ["Entire home/apt", "Private room", "Hotel room", "Shared room"]
