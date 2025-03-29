@@ -6,7 +6,8 @@ source as (
         case 
             when license is null then 0 
                 else 1
-        end as has_license 
+        end as has_license,
+        concat(latitude, ',' , longitude) as latitude_longitude
     from {{ source('staging', 'france_listings') }}
     where price is not null
 
@@ -27,8 +28,7 @@ renamed as (
         host_name,
         neighbourhood_group,
         neighbourhood,
-        latitude,
-        longitude,
+        latitude_longitude,
         TRIM(room_type) as room_type,
         price,
         minimum_nights,

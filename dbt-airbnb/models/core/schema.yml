@@ -1,0 +1,159 @@
+version: 2
+
+models:
+  - name: fct_listings
+    description: >
+      Aggregated table of all listings from staging models
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: listing_name
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: host_name
+        data_type: string
+        description: ""
+
+      - name: neighbourhood_group
+        data_type: string
+        description: ""
+
+      - name: neighbourhood
+        data_type: string
+        description: ""
+
+      - name: latitude_longitude
+        data_type: string
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: minimum_nights
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews
+        data_type: int64
+        description: ""
+
+      - name: last_review
+        data_type: date
+        description: ""
+
+      - name: reviews_per_month
+        data_type: float64
+        description: ""
+
+      - name: calculated_host_listings_count
+        data_type: int64
+        description: ""
+
+      - name: availability_365
+        data_type: int64
+        description: ""
+
+      - name: number_of_reviews_ltm
+        data_type: int64
+        description: ""
+
+      - name: has_license
+        data_type: boolean
+        description: ""
+
+  - name: dm_prices_statistics
+    description: >
+      Data mart for analyzing prices statistics. 
+      Includes columns with price levels for easier analytics.  
+    columns:
+      - name: country
+        data_type: string
+        description: ""
+
+      - name: region
+        data_type: string
+        description: ""
+
+      - name: city
+        data_type: string
+        description: ""
+
+      - name: release_year
+        data_type: int64
+        description: ""
+
+      - name: release_month
+        data_type: int64
+        description: ""
+
+      - name: release_date
+        data_type: date
+        description: ""
+
+      - name: listing_id
+        data_type: int64
+        description: ""
+
+      - name: latitude_longitude
+        data_type: string
+        description: ""
+
+      - name: host_id
+        data_type: int64
+        description: ""
+
+      - name: room_type
+        data_type: string
+        description: ""
+
+      - name: price
+        data_type: float64
+        description: ""
+
+      - name: price_level_country
+        data_type: string
+        description: >
+          4 possible values: low cost, middle cost, high cost, luxury. 
+          Value depends on price variation per room_type and country.  
+
+      - name: price_level_city
+        data_type: string
+        description: >
+          4 possible values: low cost, middle cost, high cost, luxury. 
+          Value depends on price variation per room_type and city.

@@ -24,15 +24,15 @@ with france_listings as (
 
     listings_unioned as (
     select * from france_listings
-    union all 
+        union all 
     select * from germany_listings
-    union all 
+        union all 
     select * from greece_listings
-    union all 
+        union all 
     select * from italy_listings
-    union all 
+        union all 
     select * from portugal_listings
-    union all 
+        union all 
     select * from spain_listings
 )
 
