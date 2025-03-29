@@ -91,11 +91,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
@@ -201,11 +197,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
@@ -311,11 +303,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
@@ -421,11 +409,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
@@ -531,11 +515,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
@@ -641,11 +621,7 @@ models:
         data_type: string
         description: ""
 
-      - name: latitude
-        data_type: string
-        description: ""
-
-      - name: longitude
+      - name: latitude_longitude
         data_type: string
         description: ""
 
