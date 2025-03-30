@@ -14,8 +14,7 @@ source as (
             when license is null then 0 
                 else 1
         end as has_license ,
-        concat(latitude, ',' , longitude) as latitude_longitude,
-        TIMESTAMP(release_date) AS release_timestamp
+        concat(latitude, ',' , longitude) as latitude_longitude
     from {{ source('staging', 'spain_listings') }}
     where price is not null
 
@@ -46,7 +45,7 @@ renamed as (
         calculated_host_listings_count,
         availability_365,
         number_of_reviews_ltm,
-        cast(has_license as BOOLEAN) as has_license    
+        cast(has_license as BOOLEAN) as has_license
 
     from source
 

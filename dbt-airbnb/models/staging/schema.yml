@@ -6,35 +6,17 @@ sources:
     schema: airbnb_prices_eu_dataset
 
     tables:
-      - name: france_listings
-        loaded_at_field: release_date
-        freshness:
-          warn_after: {count: 300, period: day}        
+      - name: france_listings   
 
-      - name: germany_listings
-        loaded_at_field: release_date
-        freshness:
-          warn_after: {count: 300, period: day}  
+      - name: germany_listings 
 
-      - name: greece_listings
-        loaded_at_field: release_date
-        freshness:
-          warn_after: {count: 300, period: day} 
+      - name: greece_listings 
 
       - name: italy_listings
-        loaded_at_field: release_date
-        freshness:
-          warn_after: {count: 300, period: day} 
 
       - name: portugal_listings
-        loaded_at_field: release_date
-        freshness:
-          warn_after: {count: 300, period: day} 
 
       - name: spain_listings
-        loaded_at_field: release_timestamp
-        freshness:
-          warn_after: {count: 300, period: day} 
 
 models:
   - name: stg_spain_listings
