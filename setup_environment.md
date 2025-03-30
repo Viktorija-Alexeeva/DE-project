@@ -65,7 +65,7 @@ sudo chown -R viktorija:viktorija ~/DE-project
 
 Configure VS code to access VM.
 
-In VS code: extensions - remote SSH - install - open a remote window (click on button on the left bottom) - connect to host - de-project. 
+In VS code: extensions - remote SSH - install - open a remote window (click on button on the left corner) - connect to host - de-project. 
 
 6. Install Anaconda (link from google).
 
