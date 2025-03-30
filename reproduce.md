@@ -62,6 +62,8 @@ After flow execution in Namespaces - de-project - kv store -  will appear 4 keys
 
 3.3. Create flow upload_data_to_gcs_and_bq.yaml to upload csv files into GCS bucket and BQ table.
 
+Check screenshot 'Kestra flow topology' in DE-project/kestra to know, how flow will be organised.
+
 Flow has input section, so user can either select from dropdown list or write any other country manually. 
 6 countries are selected for the project: Spain, Portugal, Italy, Greece, France, Germany. 
 
@@ -93,7 +95,9 @@ Also there are triggers for each country, according to which the flow will run a
 For DBT project will be used existing terraform-runner service account.
 For development will be used 'airbnb_prices_eu_dev' dataset, for deployment - 'airbnb_prices_eu_dataset'.
 
-DBT will take data from source tables (airbnb_prices_eu_dataset), transform it, on its basis will create fact table and datamart with prices statistics.  
+DBT will take data from source tables (airbnb_prices_eu_dataset), transform it, on its basis will create fact table and datamart with prices statistics.
+
+Check screenshot 'DBT dag' in DE-project/dbt-airbnb folder to know, how DBT project will lool like at the end. 
 
 4.1. Setup account, connection, project details, initialize dbt project. 
 
