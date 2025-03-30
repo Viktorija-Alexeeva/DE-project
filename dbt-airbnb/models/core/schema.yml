@@ -150,10 +150,12 @@ models:
         data_type: string
         description: >
           4 possible values: low cost, middle cost, high cost, luxury. 
-          Value depends on price variation per room_type and country.  
+          Value depends on price variation per room_type and country:
+            low cost <= 30%; middle cost > 30% and <= 75%; high cost > 75% and <= 95%; luxury > 95%.
 
       - name: price_level_city
         data_type: string
         description: >
           4 possible values: low cost, middle cost, high cost, luxury. 
-          Value depends on price variation per room_type and city.
+          Value depends on price variation per room_type and city:
+            low cost <= 30%; middle cost > 30% and <= 75%; high cost > 75% and <= 95%; luxury > 95%.
