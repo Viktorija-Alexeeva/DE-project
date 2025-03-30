@@ -32,7 +32,7 @@ sources:
           warn_after: {count: 300, period: day} 
 
       - name: spain_listings
-        loaded_at_field: release_date
+        loaded_at_field: release_timestamp
         freshness:
           warn_after: {count: 300, period: day} 
 

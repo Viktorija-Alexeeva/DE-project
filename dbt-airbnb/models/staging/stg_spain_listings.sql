@@ -14,7 +14,8 @@ source as (
             when license is null then 0 
                 else 1
         end as has_license ,
-        concat(latitude, ',' , longitude) as latitude_longitude
+        concat(latitude, ',' , longitude) as latitude_longitude,
+        TIMESTAMP(release_date) AS release_timestamp
     from {{ source('staging', 'spain_listings') }}
     where price is not null
 
