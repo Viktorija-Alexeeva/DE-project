@@ -44,7 +44,7 @@ models:
 
       - name: release_date
         data_type: date
-        description: ""
+        description: "Report release date"
 
       - name: listing_id
         data_type: int64
