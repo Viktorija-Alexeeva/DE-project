@@ -254,36 +254,36 @@ pluginDefaults:
 triggers:
   - id: spain_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 6 1 * *"
+    cron: "0 1 1 * *"
     inputs:
       country: spain
 
   - id: portugal_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 7 1 * *"
+    cron: "0 2 1 * *"
     inputs:
       country: portugal
 
   - id: italy_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 8 1 * *"
+    cron: "0 3 1 * *"
     inputs:
       country: italy
 
   - id: greece_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 9 1 * *"
+    cron: "0 4 1 * *"
     inputs:
       country: greece
 
   - id: france_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 10 1 * *"
+    cron: "0 5 1 * *"
     inputs:
       country: france
 
   - id: germany_schedule
     type: io.kestra.plugin.core.trigger.Schedule
-    cron: "0 11 1 * *"
+    cron: "0 6 1 * *"
     inputs:
       country: germany
