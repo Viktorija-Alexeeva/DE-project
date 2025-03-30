@@ -45,7 +45,7 @@ renamed as (
         calculated_host_listings_count,
         availability_365,
         number_of_reviews_ltm,
-        cast(has_license as BOOLEAN) as has_license    
+        cast(has_license as BOOLEAN) as has_license
 
     from source
 
