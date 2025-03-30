@@ -314,7 +314,7 @@ Trigger will run a job every 2nd day of each month.
 
 After job is created, click 'run now' to test a job. 
 
-As a result in BQ airbnb_proces_eu_dataset will be created 6 stg_ views and 2 tables from core models: fct_listings and dm_prices_statistics.
+As a result in BQ airbnb_prices_eu_dataset will be created 6 stg_ views and 2 tables from core models: fct_listings and dm_prices_statistics.
 
 Add artifacts: in dbt main page click on dashboard - settings - on the right will see project settings, go to artifacts - documentation: 'monthly' job - save. 
 
