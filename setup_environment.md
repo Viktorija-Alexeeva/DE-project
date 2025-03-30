@@ -63,6 +63,10 @@ In bash:
 sudo chown -R viktorija:viktorija ~/DE-project
 ```
 
+Configure VS code to access VM.
+
+In VS code: extensions - remote SSH - install - open a remote window (click on button on the left bottom) - connect to host - de-project. 
+
 6. Install Anaconda (link from google).
 
 In bash:
@@ -147,6 +151,6 @@ name: airbnb_prices_eu_dev
 location: europe-west1
 ```
 
-Now you are ready to reproduce the project. Follow instructions of file 'reproduce.md'. 
+Now you are ready to reproduce the project. Follow instructions in file 'reproduce.md'. 
 
 
