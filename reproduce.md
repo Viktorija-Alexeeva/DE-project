@@ -380,6 +380,7 @@ All tiles have cross-filtering interaction, so when user implements filter on 1 
 Compare screenshots 'Prices statistics' (without any filters) with 'Spain, low cost' and 'Spain, Portugal, private room'. 
 Should see the changes in charts.
 
+Link to dashboard: https://lookerstudio.google.com/s/pJTG8T8LiG0. 
 
 Reproduction is finished. 
 
