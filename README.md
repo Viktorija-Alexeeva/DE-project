@@ -1,9 +1,9 @@
-# DE-project
+# DE-project 'Airbnb prices EU'
 The Final project was developed as part of Data Engineering Zoomcamp. 
 
 This project is based on data from Inside Airbnb platform, which provides detailed datasets about Airbnb listings, including information on hosts, reviews, pricing, availability, and more. These datasets are valuable for analyzing trends in the short-term rental market, understanding host behavior, and evaluating the impact of Airbnb on housing markets. The datasets are updated quarterly. 
 
-Source link: [Inside Airbnb](https://insideairbnb.com/get-the-data.) 
+Source link: [Inside Airbnb](https://insideairbnb.com/get-the-data/.) 
 
 By developing an automated data pipeline and an interactive dashboard, project aims to solve such problems as:
 - Identifying high-density Airbnb areas to analyze market concentration and competition. 

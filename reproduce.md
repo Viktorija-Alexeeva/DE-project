@@ -2,7 +2,7 @@ Steps to reproduce the project 'airbnb-prices-eu'.
 
 1. In GCP start VM instance 'de-project'. 
 
-Copy external IP and paste it into config file.
+Copy external IP and paste it into ~/.ssh/config file.
 
 Connect to VM via ssh: 
 
@@ -18,9 +18,9 @@ Activated service account credentials for: [terraform-runner@airbnb-prices-eu.ia
 
 2. Configure Terraform files to create new bucket and dataset. 
 
-In folder DE-project/terraform create and configure files main.tf and variables.tf.
+In VS code in Explorer open folder DE-proect. Will see cloned repo 'DE-project'. In folder ~/DE-project/terraform create and configure files main.tf and variables.tf.
 
-In variables.tf:
+In variables.tf configure parameters:
 ```
 project: airbnb-prices-eu
 region: europe-west1
@@ -28,9 +28,9 @@ dataset: airbnb_prices_eu_dataset
 bucket: airbnb-prices-eu-bucket
 ```
 
-Using Terraform, create new bucket and dataset.  
+Using Terraform, create new bucket and dataset in GCP according to mentioned info.  
 
-In bash in DE-project/terraform:
+In bash in ~/DE-project/terraform:
 ```
 terraform init
 terraform plan
@@ -42,7 +42,7 @@ In GCP will be created new bucket 'airbnb-prices-eu-bucket' and new dataset 'air
 
 3.1. Run Kestra (using docker-compose). 
 
-In DE-project/kestra create and configure 'docker-compose.yaml' file:
+In ~/DE-project/kestra create and configure 'docker-compose.yaml' file:
 - to configure Kestra and Kestra-metadata containers connection. 
 - mount /.gc/prices.json file to configure Kestra access to GCP. 
 
@@ -50,11 +50,11 @@ In VS code add forwarded ports: 5432, 8080 and 8081.
 
 To run Kestra: 
 
-In bash in DE-project/kestra:
+In bash in ~/DE-project/kestra:
 ```
 docker-compose up -d
 ``` 
-Then in google open http://localhost:8080 - will open Kestra UI. 
+After containers have been started, in google go to http://localhost:8080 - will open Kestra UI. 
 
 3.2. Create flow gcp_kv.yaml to pass GCP parameters to Kestra.
 
@@ -99,7 +99,7 @@ For development will be used 'airbnb_prices_eu_dev' dataset, for deployment - 'a
 DBT DAG:
 ![DBT DAG](<dbt-airbnb/DBT DAG.png>)
 
-DBT will take data from source tables (airbnb_prices_eu_dataset), transform it, on its basis will create fact table and datamart with prices statistics. 
+DBT will take data from source tables (airbnb_prices_eu_dataset), transform it, on its basis will create fact table and data mart with prices statistics. 
 
 4.1. Setup account, connection, project details, initialize dbt project. 
 
@@ -115,7 +115,7 @@ connection name: BigQuery
 upload prices.json key 
 ```
 
-Setup project details (project name with '_'):
+Setup project details (project name with '_') with parameters:
 ```
 project name: airbnb_prices_eu
 project subdirectory: dbt-airbnb
@@ -126,6 +126,7 @@ setup repository (Git clone - copy SSH in repo): git@github.com:Viktorija-Alexee
 ```
 
 Add a link to github account. 
+
 Configure integration in github: github - personal account - settings - applications - dbt cloud - repository access - add repo 'DE-project' - save.  
 
 Initialize dbt-project: Develop - Cloud IDE - click 'initialize-dbt-project' - will be created project inside dbt-airbnb folder. 
@@ -140,7 +141,7 @@ As a result in github main branch will be stored dbt-project.
 
 In Develop - Cloud IDE - file explorer - folder DE-project/dbt-airbnb:
 
-file dbt_project.yml:
+Configure file dbt_project.yml with parameters:
 ```
 name: 'airbnb_prices_eu'
 
@@ -194,7 +195,7 @@ Here will be added info about sources (files from airbnb_prices_eu_dataset) and 
 
 In dbt DBT_DATABASE = GCP projectID; DBT_SCHEMA = GCP dataset.
 
-In staging/schema.yml:
+In staging/schema.yml configure parameters:
 ```
 version: 2
 
@@ -261,13 +262,12 @@ This is fact table, which unions data from all stg_ files (from staging models).
 
 4.5.2. In models/core create file dm_prices_statistics.sql. 
 
-This is datamart with special info about prices. 
+This is data mart with specific info about prices. 
 
-In datamart are created columns price_level_country and price_level_city. 
+In data mart are created columns price_level_country and price_level_city. 
 They will define price level according to price distribution for partition room_type and country/city.  
 For that will be used function PERCENTILE_CONT for 30%, 75%, 95%.
-There are 4 possible values for price levels: low cost, middle cost, high cost, luxury. 
-low cost <= 30%; middle cost > 30% and <= 75%; high cost > 75% and <= 95%; luxury > 95%.
+There are 4 possible values for price levels: low cost <= 30%; middle cost > 30% and <= 75%; high cost > 75% and <= 95%; luxury > 95%.
 
 4.5.3. In models/core create schema.yml file. 
 
@@ -286,7 +286,7 @@ It will open tab 'dbt Docs' (https://kl743.us1.dbt.com/accounts/70471823449159/d
 
 4.7.1. Setup deployment environment. 
 
-To setup deployment environment in dbt click on deploy - environments - create environment. 
+To setup deployment environment in dbt click on deploy - environments - create environment. Configure parameters:
 ```
 environment name: Production
 Set deployment type: PROD
@@ -304,7 +304,7 @@ Before run a job always:
 - create PR
 - merge with main branch
 
-To configure a job: deploy - jobs - click on 'create job' - deploy job. 
+To configure a job: deploy - jobs - click on 'create job' - deploy job. Configure parameters:
 ```
 job name: Monthly
 Environment: Production
@@ -328,7 +328,7 @@ Add artifacts: in dbt main page click on dashboard - settings - on the right wil
 
 To configure continuous integration create another job.
 
-Deploy - jobs - click on 'create job' - continuous integration job. 
+Deploy - jobs - click on 'create job' - continuous integration job. Configure parameters:
 ```
 job name: CI checks
 description: avoid breaking production
@@ -338,7 +338,7 @@ commands: dbt build --select state:modified+
 
 This job is triggered by PR. When create PR in git, it will automatically run CI checks job. When check is finished, will see 'dbt Cloud — dbt Cloud run success', only after that can merge PR. 
 
-5. Create dashboard in Looker Studio to visualise data from datamart. 
+5. Create dashboard in Looker Studio to visualise data from data mart. 
 
 5.1. Create dashboard in Looker Studio. 
 
@@ -358,7 +358,7 @@ Click 'Create report'.
 
 5.2. Create tiles. 
 
-All settings are on screenshots in folder DE-project/looker. 
+All tiles settings are on screenshots in folder DE-project/looker. 
 
 Create a dashboard with 4 tiles:
 - Listings map (on basis of latitude_longitude). The more listings are on area, the bigger size of bubbles. Each room type has different bubble color. 
@@ -368,7 +368,7 @@ Create a dashboard with 4 tiles:
 
 5.3. Create filters. 
 
-All settings are on screenshots in folder DE-project/looker. 
+All filters settings are on screenshots in folder DE-project/looker. 
 
 Add 4 dropdown filters: 
 - Release year

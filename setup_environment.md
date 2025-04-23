@@ -1,5 +1,7 @@
 Steps to setup environment for project 'airbnb-prices-eu'.
 
+Project repo is on Github, project is developed on VM (connection via ssh to VM instance on GCP). 
+
 1. Create repo 'DE-project' in github.
 
 2. Create new project 'airbnb-prices-eu' in GCP.
@@ -8,7 +10,7 @@ Enable Compute Engine API.
 
 Generate ssh key for VM:
 
-In bash in /.ssh folder:
+In bash in ~/.ssh folder:
 ```
 ssh-keygen -t rsa -f proj-vm -C viktorija -b 2048
 cat proj-vm.pub
@@ -19,6 +21,8 @@ In GCP Metadata - ssh keys - add ssh key. Copy there public key (result of cat p
 3. Create VM instance 'de-project' in GCP.
 
 In GCP Compute Engine - VM instances - create. 
+
+Parameters for VM instance:
 ```
 name: de-project
 location: europe-west1-b
@@ -34,7 +38,7 @@ In bash:
 ssh -i ~/.ssh/proj-vm viktorija@34.38.125.214
 ```
 
-4. In .ssh/config file add info about new ssh connection. 
+4. In ~/.ssh/config file add info about new ssh connection. 
 ```
 Host de-project
     HostName 34.38.125.214
@@ -51,7 +55,7 @@ $ git clone https://github.com/Viktorija-Alexeeva/DE-project.git
 
 Configure username and email in git: 
 
-In bash in DE-project/:
+In bash in ~/DE-project/:
 ```
 git config --local user.name "Your Name"
 git config --local user.email "your-email@example.com"
@@ -77,7 +81,7 @@ bash Anaconda3-2024.10-1-Linux-x86_64.sh
 
 7. Install Terraform (link from google).
 
-In bash in /bin:
+In bash in ~/bin:
 ```
 wget https://releases.hashicorp.com/terraform/1.11.1/terraform_1.11.1_linux_amd64.zip
 
@@ -89,19 +93,21 @@ rm terraform_1.11.1_linux_amd64.zip
 8. Create terraform-runner service account in GCP.
 
 In GCP IAM & Admin - Service accounts - create.
+
+Parameters for terraform-runner service account:
 ```
 name: terraform-runner
 roles:  BigQuery Admin
         Compute Admin
         Storage Admin
 ```
-For created account add key in .json. 
+For created account add key in .json. Rename it to 'prices.json'. 
 
-On premises copy key into /.gc/prices.json.
+On premises copy key into ~/.gc/ folder.
 
 Copy key to server:
 
-In bash in /.gc folder:
+In bash in ~/.gc folder:
 ```
 sftp de-project
 mkdir .gc/
@@ -131,13 +137,14 @@ In bash:
 ```
 docker run hello-world
 ```
-
+Will see the message 'Hello from Docker!' which means, that Docker is installed correctly. 
+ 
 10. Install docker-compose. 
 
 In google: https://github.com/docker/compose/releases/tag/v2.33.1.
 Copy link of 'docker-compose-linux-x86-64'.
 
-In bash in bin/:
+In bash in ~/bin/:
 ```
 wget https://github.com/docker/compose/releases/download/v2.33.1/docker-compose-linux-x86_64 -O docker-compose
 chmod +x docker-compose
@@ -145,7 +152,7 @@ chmod +x docker-compose
 
 11. Create separate dataset for development environment of DBT project.
 
-In BQ create dataset: 
+In BQ create dataset with parameters: 
 ```
 name: airbnb_prices_eu_dev
 location: europe-west1
