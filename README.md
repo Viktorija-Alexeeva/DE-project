@@ -39,6 +39,8 @@ Example of dashboard:
 ![dashboard](<looker/Prices statistics.png>)
 
 
+Link to dashboard: https://lookerstudio.google.com/s/pJTG8T8LiG0.
+
 If you are interested in reproducing this project, please follow the instructions below:
 
 1. To configure environment for the project follow instructions in setup_environment.md file.
